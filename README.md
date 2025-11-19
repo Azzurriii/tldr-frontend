@@ -4,6 +4,8 @@ This project is a modern, secure single-page application built with React, TypeS
 
 **Live Demo:** [https://ga03.pages.dev/](https://ga03.pages.dev/)
 
+**Video:** [https://www.youtube.com/watch?v=qEauTn9UY50](https://www.youtube.com/watch?v=qEauTn9UY50)
+
 ## ✨ Key Features
 
 - **Secure Authentication**:
