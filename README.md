@@ -2,9 +2,7 @@
 
 This project is a modern, secure single-page application built with React, TypeScript, and Vite. It demonstrates a complete and robust authentication system featuring email/password login, Google Sign-In (OAuth), automatic token refresh, and protected routes. It also includes a fully functional **Email Dashboard Mockup** with a responsive 3-column layout.
 
-**Live Demo:** [Insert Your Deployed URL Here]
-
-![SecureMail Login Page](https://i.imgur.com/your-login-page-screenshot.png) <!-- Optional: Add a screenshot -->
+**Live Demo:** [https://ga03.pages.dev/](https://ga03.pages.dev/)
 
 ## ✨ Key Features
 
