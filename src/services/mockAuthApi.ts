@@ -141,7 +141,7 @@ export const mockAuthApi = {
   },
 
   // Logout
-  logout: async (refreshToken: string): Promise<void> => {
+  logout: async (_refreshToken: string): Promise<void> => {
     await delay(300);
     // validRefreshTokens.delete(refreshToken);
   },

@@ -1,15 +1,13 @@
 import type { Mailbox } from '@/types/email';
 import { cn } from '@/lib/utils';
-import { 
-  Inbox, 
-  Send, 
-  File, 
-  Trash2, 
-  Archive, 
-  Star, 
-  Folder,
-  Briefcase,
-  User
+import {
+  Inbox,
+  Send,
+  File,
+  Trash2,
+  Archive,
+  Star,
+  Folder
 } from 'lucide-react';
 
 interface MailboxListProps {
