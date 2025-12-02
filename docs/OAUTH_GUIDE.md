@@ -45,7 +45,7 @@ Your backend uses Authorization Code flow (not simple ID token) because the appl
 #### 1. Configure Google Cloud Console
 
 1. Go to https://console.cloud.google.com/apis/credentials
-2. Find OAuth client ID: `80455850361-1u91tteqc8vbluqphics2po1go4c1tsf`
+2. Find OAuth client ID:
 3. Click **Edit**
 4. Add authorized redirect URIs:
    ```
@@ -73,15 +73,15 @@ Your backend uses Authorization Code flow (not simple ID token) because the appl
 
 **Frontend (.env):**
 ```env
-VITE_GOOGLE_CLIENT_ID=80455850361-1u91tteqc8vbluqphics2po1go4c1tsf.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 VITE_GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
 VITE_API_BASE_URL=http://localhost:3000/v1
 ```
 
 **Backend (.env):**
 ```env
-GOOGLE_CLIENT_ID=80455850361-1u91tteqc8vbluqphics2po1go4c1tsf.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
 CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
