@@ -1,11 +1,12 @@
 import { cn } from '@/lib/utils';
-import { Search, RotateCw, CheckSquare, Trash2, MailOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, RotateCw, CheckSquare, Trash2, MailOpen, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { List } from 'react-virtualized';
 import 'react-virtualized/styles.css';
 import { useRef, useEffect } from 'react';
+import { useEmailMutations } from '@/hooks/useEmail';
 
 interface EmailListProps {
   emails: any[]; // Backend email type
@@ -46,6 +47,17 @@ export function EmailList({
 }: EmailListProps) {
   const listRef = useRef<List>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { toggleStar, markAsRead } = useEmailMutations();
+
+  const handleToggleStar = (e: React.MouseEvent, emailId: number, isStarred: boolean) => {
+    e.stopPropagation();
+    toggleStar.mutate({ id: emailId, isStarred: !isStarred });
+  };
+
+  const handleToggleRead = (e: React.MouseEvent, emailId: number, isRead: boolean) => {
+    e.stopPropagation();
+    markAsRead.mutate({ id: emailId, isRead: !isRead });
+  };
 
   // Scroll to selected email when it changes
   useEffect(() => {
@@ -79,7 +91,19 @@ export function EmailList({
         )}
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="font-medium truncate">{email.fromName || email.fromEmail}</span>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <button
+              onClick={(e) => handleToggleStar(e, email.id, email.isStarred)}
+              className="flex-shrink-0 hover:scale-110 transition-transform"
+              title={email.isStarred ? "Unstar" : "Star"}
+            >
+              <Star className={cn(
+                "h-4 w-4",
+                email.isStarred ? "text-yellow-400 fill-yellow-400" : "text-gray-300 hover:text-yellow-400"
+              )} />
+            </button>
+            <span className="font-medium truncate">{email.fromName || email.fromEmail}</span>
+          </div>
           <span className={cn(
               "text-xs whitespace-nowrap",
               !email.isRead ? "text-blue-600" : "text-muted-foreground"

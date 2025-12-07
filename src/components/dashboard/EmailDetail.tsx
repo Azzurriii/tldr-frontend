@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 import { 
   Reply, 
   ReplyAll, 
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ComposeEmailModal } from './ComposeEmailModal';
 import apiClient from '@/services/apiClient';
+import { useEmailMutations } from '@/hooks/useEmail';
 
 interface EmailDetailProps {
   email: any; // Backend email detail type
@@ -23,6 +25,19 @@ interface EmailDetailProps {
 
 export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
   const [composeMode, setComposeMode] = useState<'compose' | 'reply' | 'replyAll' | 'forward' | null>(null);
+  const { toggleStar, markAsRead, deleteEmail } = useEmailMutations();
+  
+  const handleToggleStar = () => {
+    if (email) {
+      toggleStar.mutate({ id: email.id, isStarred: !email.isStarred });
+    }
+  };
+
+  const handleDelete = () => {
+    if (email && confirm('Are you sure you want to delete this email?')) {
+      deleteEmail.mutate(email.id);
+    }
+  };
   
   const handleDownloadAttachment = async (attachmentId: number, filename: string) => {
     try {
@@ -46,9 +61,12 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
     }
   };
   
-  // Reset compose mode when email changes
+  // Reset compose mode and mark as read when email changes
   useEffect(() => {
     setComposeMode(null);
+    if (email && !email.isRead) {
+      markAsRead.mutate({ id: email.id, isRead: true });
+    }
   }, [email?.id]);
   
   console.log('EmailDetail - mailboxId:', mailboxId, 'email:', email);
@@ -86,10 +104,25 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
           </Button>
         </div>
         <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" title="Star">
-                <Star className={`h-4 w-4 ${email.isStarred ? 'text-yellow-400 fill-yellow-400' : ''}`} />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              title={email.isStarred ? "Unstar" : "Star"}
+              onClick={handleToggleStar}
+            >
+                <Star className={cn(
+                  "h-4 w-4",
+                  email.isStarred ? 'text-yellow-400 fill-yellow-400' : ''
+                )} />
             </Button>
-            <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50" title="Delete">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-red-500 hover:text-red-600 hover:bg-red-50" 
+              title="Delete"
+              onClick={handleDelete}
+              disabled={deleteEmail.isPending}
+            >
                 <Trash2 className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon">
