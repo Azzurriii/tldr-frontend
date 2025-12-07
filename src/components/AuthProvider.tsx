@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore, getRefreshToken, setRefreshToken } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import { authApi } from '@/services/authApi';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -8,24 +8,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const refreshToken = getRefreshToken();
-      if (!refreshToken) {
-        setIsChecking(false);
-        return;
-      }
-
       try {
-        console.log('AuthProvider: Refreshing token...');
-        // Use the real API to refresh the token
-        const response = await authApi.refreshToken(refreshToken);
+        console.log('AuthProvider: Checking for existing session...');
+        // Try to refresh token using HttpOnly cookie
+        // If cookie exists, backend will refresh the token automatically
+        const response = await authApi.refreshToken(''); // Empty string since cookie is used
         console.log('AuthProvider: Token refreshed successfully, userId:', response.userId);
         
         // Update the access token in the store
         setAccessToken(response.tokens.accessToken);
         
-        // The backend might issue a new rotated refresh token
-        setRefreshToken(response.refreshToken);
-        console.log('AuthProvider: Tokens stored, fetching user profile...');
+        // Refresh token is managed by HttpOnly cookie on backend
+        console.log('AuthProvider: Access token stored, fetching user profile...');
 
         // Fetch user profile with the new access token
         const user = await authApi.getProfile();
@@ -34,8 +28,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('AuthProvider: Session restored successfully');
 
       } catch (error) {
-        console.error('Failed to restore session:', error);
-        logout(); // Clear invalid token
+        console.log('AuthProvider: No valid session found or session expired');
+        // No valid session, continue as logged out
+        logout();
       } finally {
         setIsChecking(false);
       }

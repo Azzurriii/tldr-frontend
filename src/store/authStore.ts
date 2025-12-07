@@ -31,9 +31,6 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
 }
 
-// Refresh token is stored in localStorage
-const REFRESH_TOKEN_KEY = 'refreshToken';
-
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   accessToken: null,
@@ -51,15 +48,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     // Clear in-memory access token
+    // Refresh token is now in HttpOnly cookie, cleared by backend
     set({ 
       user: null, 
       accessToken: null, 
       isAuthenticated: false,
       error: null 
     });
-    
-    // Clear refresh token from localStorage
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
   },
 
   clearError: () => {
@@ -74,16 +69,3 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: loading });
   },
 }));
-
-// Helper functions for refresh token management
-export const getRefreshToken = (): string | null => {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
-};
-
-export const setRefreshToken = (token: string): void => {
-  localStorage.setItem(REFRESH_TOKEN_KEY, token);
-};
-
-export const removeRefreshToken = (): void => {
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-};

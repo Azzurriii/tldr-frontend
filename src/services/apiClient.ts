@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosError } from 'axios';
-import { useAuthStore, getRefreshToken, removeRefreshToken, setRefreshToken } from '../store/authStore';
+import { useAuthStore } from '../store/authStore';
 
 // Base URL for API from environment variable
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/v1';
@@ -11,6 +11,7 @@ const apiClient: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Enable sending cookies with requests
 });
 
 // Flag to prevent multiple simultaneous refresh attempts
@@ -80,28 +81,19 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = getRefreshToken();
-
-      if (!refreshToken) {
-        // No refresh token available, force logout
-        isRefreshing = false;
-        useAuthStore.getState().logout();
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-
       try {
         // Attempt to refresh the access token
-        const response = await axios.post(`${BASE_URL}/auth/refresh`, {
-          refreshToken,
-        });
+        // Cookie will be sent automatically due to withCredentials: true
+        const response = await axios.post(
+          `${BASE_URL}/auth/refresh`, 
+          {}, 
+          { withCredentials: true }
+        );
         
         const newAccessToken = response.data.tokens.accessToken;
-        const newRefreshToken = response.data.refreshToken;
 
-        // Update tokens in store and localStorage
+        // Update access token in store (refresh token is in cookie)
         useAuthStore.getState().setAccessToken(newAccessToken);
-        setRefreshToken(newRefreshToken);
 
         // Process queued requests with new token
         processQueue(null, newAccessToken);
@@ -119,7 +111,6 @@ apiClient.interceptors.response.use(
         isRefreshing = false;
         
         useAuthStore.getState().logout();
-        removeRefreshToken();
         
         window.location.href = '/login';
         return Promise.reject(refreshError);

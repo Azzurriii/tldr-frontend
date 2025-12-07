@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authApi, type AuthResponse, type LoginCredentials, type RegisterData, type GoogleAuthData } from '@/services/authApi';
-import { useAuthStore, setRefreshToken } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 
 // Query keys
 export const authKeys = {
@@ -24,8 +24,6 @@ export function useLogin() {
       // Update auth store with access token
       setAccessToken(data.tokens.accessToken);
       
-      // Store refresh token
-      setRefreshToken(data.refreshToken);
       
       // Fetch user profile immediately
       try {
@@ -62,8 +60,6 @@ export function useRegister() {
       // Update auth store
       setAccessToken(data.tokens.accessToken);
       
-      // Store refresh token
-      setRefreshToken(data.refreshToken);
       
       // Fetch user profile immediately
       try {
@@ -113,8 +109,6 @@ export function useGoogleLogin() {
       // Update auth store with access token first
       setAccessToken(data.tokens.accessToken);
       
-      // Store refresh token
-      setRefreshToken(data.refreshToken);
       
       // Fetch user profile immediately
       try {
@@ -211,9 +205,9 @@ export function useRefreshToken() {
       return response;
     },
     onSuccess: (data: AuthResponse) => {
-      // Update auth store with new tokens
+      // Update auth store with new access token
+      // Refresh token is automatically updated in HttpOnly cookie by backend
       setAccessToken(data.tokens.accessToken);
-      setRefreshToken(data.refreshToken);
       
       // Invalidate user query
       queryClient.invalidateQueries({ queryKey: authKeys.user() });
