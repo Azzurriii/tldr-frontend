@@ -21,6 +21,19 @@ A modern, full-stack email client application with Gmail integration built with 
 - **Background Jobs**: Automated cron jobs for periodic email synchronization
 - **Email Threading**: Proper email threading support with In-Reply-To and References headers
 - **Rich Email Display**: HTML email rendering with attachments support
+- **Kanban Board**: Visual workflow management with drag-and-drop email organization
+- **Task Management**: 4-column Kanban (Inbox, To Do, In Progress, Done) for email workflow
+- **Email Snooze**: Snooze emails with multiple duration options (1hr, 4hr, 1day, 3days, 1week)
+- **Auto Wake-up**: Backend cron job automatically unsnoozes emails when time expires
+- **Kanban Board**: Visual workflow management with drag-and-drop email organization
+- **Task Management**: 4-column Kanban (Inbox, To Do, In Progress, Done) for email workflow
+- **Email Snooze**: Snooze emails with multiple duration options (1hr, 4hr, 1day, 3days, 1week)
+- **Auto Wake-up**: Backend cron job automatically unsnoozes emails when time expires
+
+### AI-Powered Features
+- **Email Summarization**: AI-generated summaries for quick email understanding
+- **Auto-Summarization**: Automatically generate summaries for top 5 emails on Kanban entry
+- **Smart Insights**: Sparkles icon indicates AI-summarized emails
 
 ### Email Sending
 - **Compose New Emails**: Create and send new emails with To, Cc, Bcc support
@@ -56,6 +69,7 @@ A modern, full-stack email client application with Gmail integration built with 
 - **Routing**: React Router v6
 - **HTTP Client**: Axios with interceptors
 - **Virtualization**: react-virtualized for performance
+- **Drag & Drop**: @hello-pangea/dnd for Kanban board
 
 ### Backend
 - **Framework**: NestJS
@@ -140,7 +154,7 @@ A modern, full-stack email client application with Gmail integration built with 
 
 1. **Navigate to frontend directory:**
    ```bash
-   cd Ga03
+   cd tldr-frontend
    ```
 
 2. **Install dependencies:**
@@ -150,7 +164,7 @@ A modern, full-stack email client application with Gmail integration built with 
 
 3. **Set up environment variables:**
    
-   Create a `.env` file in the `Ga03` directory:
+   Create a `.env` file in the `tldr-frontend` directory:
    ```env
    VITE_API_URL=http://localhost:3000/v1
    VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
@@ -190,7 +204,7 @@ This project implements OAuth 2.0 with PKCE (Proof Key for Code Exchange) for en
 4. **Token Exchange**: Backend exchanges the code for access and refresh tokens using the code verifier
 5. **Mailbox Auto-Creation**: Backend automatically creates a mailbox entry and initiates email sync
 6. **Token Storage**: 
-   - Frontend: Access token in memory (Zustand), refresh token in localStorage
+   - Frontend: Access token in memory (Zustand), JWT tokens stored in HttpOnly cookies
    - Backend: OAuth tokens encrypted with AES-256-GCM in PostgreSQL
 7. **Token Refresh**: Automatic token refresh before API calls if expired (5-minute threshold)
 8. **Email Sync**: Background jobs periodically sync emails using Gmail History API
@@ -200,6 +214,8 @@ This project implements OAuth 2.0 with PKCE (Proof Key for Code Exchange) for en
 - **PKCE Flow**: Prevents authorization code interception attacks
 - **One-Time Code Use**: Authorization codes are consumed and cannot be reused
 - **Encrypted Storage**: All OAuth tokens encrypted at rest in database
+- **HttpOnly Cookies**: JWT tokens stored in secure, HttpOnly cookies to prevent XSS attacks
+- **SameSite Cookies**: CSRF protection with SameSite=Strict cookie attribute
 - **Token Expiry**: Short-lived access tokens (15 minutes) with longer refresh tokens (7 days)
 - **Automatic Refresh**: Tokens refreshed automatically before API operations
 - **Secure Cookies**: HttpOnly, SameSite cookies for additional security (optional)
@@ -234,9 +250,11 @@ This project implements OAuth 2.0 with PKCE (Proof Key for Code Exchange) for en
 
 Built with shadcn/ui, the interface includes:
 - **Navigation**: Top navigation with user profile and logout
-- **Mailbox List**: Sidebar with folder structure (Inbox, Favorites, Drafts, Sent, Archive, Spam, Bin)
+- **Mailbox List**: Sidebar with folder structure (Inbox, Favorites, Snoozed, Drafts, Sent, Archive, Spam, Bin)
 - **Email List**: Virtualized scrollable email list with sender, subject, snippet, and timestamp
-- **Email Detail**: Full email view with actions (reply, forward, delete, star)
+- **Email Detail**: Full email view with actions (reply, forward, delete, star, snooze)
+- **Kanban Board**: Drag-and-drop board with 4 columns for visual email workflow management
+- **Email Cards**: Rich cards with AI summaries, snooze indicators, and quick actions
 - **Compose Modal**: Rich email composition interface
 - **Loading States**: Skeletons and spinners for async operations
 - **Error Handling**: User-friendly error messages and alerts
@@ -253,6 +271,10 @@ Ga03/
 │   │   │   ├── EmailList.tsx         # Virtualized email list
 │   │   │   ├── MailboxList.tsx       # Sidebar with folders
 │   │   │   └── ComposeEmailModal.tsx # Email composition modal
+│   │   ├── kanban/
+│   │   │   ├── KanbanBoard.tsx       # Drag-and-drop board with 4 columns
+│   │   │   ├── KanbanColumn.tsx      # Droppable column component
+│   │   │   └── EmailCard.tsx         # Draggable email card with snooze
 │   │   ├── ui/                       # shadcn/ui components
 │   │   ├── Navigation.tsx            # Top navigation bar
 │   │   ├── PrivateRoute.tsx          # Route guard
@@ -264,7 +286,8 @@ Ga03/
 │   ├── pages/
 │   │   ├── Login.tsx                 # Login page with Google OAuth
 │   │   ├── Dashboard.tsx             # Landing page
-│   │   └── Inbox.tsx                 # Main email interface
+│   │   ├── Inbox.tsx                 # Main email interface
+│   │   └── Kanban.tsx                # Kanban board view
 │   ├── services/
 │   │   ├── apiClient.ts              # Axios client with interceptors
 │   │   ├── authApi.ts                # Authentication API calls
@@ -416,6 +439,11 @@ npm run format
 - [x] Virtualized email list
 - [x] Responsive design
 - [x] Keyboard navigation
+- [x] Kanban board with drag-and-drop
+- [x] Email snooze/unsnooze
+- [x] AI email summarization
+- [x] Auto-summarization on Kanban entry
+- [x] Task status management (4 workflow columns)
 
 ### 🚧 In Progress
 - [ ] Attachment downloads
