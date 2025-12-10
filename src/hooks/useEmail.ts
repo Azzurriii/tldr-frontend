@@ -111,6 +111,14 @@ export const useEmailMutations = () => {
     },
   });
 
+  const summarizeEmail = useMutation({
+    mutationFn: (emailId: number) => emailApi.summarizeEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
+      queryClient.invalidateQueries({ queryKey: ['email'] });
+    },
+  });
+
   return {
     updateEmail,
     toggleStar,
@@ -119,6 +127,7 @@ export const useEmailMutations = () => {
     syncMailbox,
     connectMailbox,
     sendEmail,
+    summarizeEmail,
   };
 };
 

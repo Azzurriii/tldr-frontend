@@ -30,6 +30,7 @@ export interface Email {
   taskStatus: 'none' | 'todo' | 'in_progress' | 'done';
   isPinned: boolean;
   snoozedUntil: string | null;
+  aiSummary?: string | null;
 }
 
 export interface EmailDetail extends Email {
@@ -41,6 +42,8 @@ export interface EmailDetail extends Email {
   labels: string[] | null;
   taskDeadline: string | null;
   attachments?: Attachment[];
+  aiActionItems?: string[] | null;
+  aiUrgencyScore?: number | null;
 }
 
 export interface Attachment {
@@ -113,6 +116,12 @@ export interface SendEmailData {
   threadId?: string;
 }
 
+export interface SummarizeEmailResponse {
+  emailId: number;
+  summary: string;
+  saved: boolean;
+}
+
 export const emailApi = {
   // Mailbox operations
   getMailboxes: async (): Promise<Mailbox[]> => {
@@ -161,6 +170,11 @@ export const emailApi = {
 
   deleteEmail: async (emailId: number): Promise<void> => {
     await apiClient.delete(`/emails/${emailId}`);
+  },
+
+  summarizeEmail: async (emailId: number): Promise<SummarizeEmailResponse> => {
+    const response = await apiClient.post<SummarizeEmailResponse>(`/emails/${emailId}/summarize`);
+    return response.data;
   },
 
   // Attachment operations

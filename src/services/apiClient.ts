@@ -112,7 +112,10 @@ apiClient.interceptors.response.use(
         
         useAuthStore.getState().logout();
         
-        window.location.href = '/login';
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       }
     }

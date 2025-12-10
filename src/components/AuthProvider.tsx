@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { authApi } from '@/services/authApi';
+import axios from 'axios';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/v1';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setAccessToken, logout } = useAuthStore();
@@ -10,21 +12,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       try {
         console.log('AuthProvider: Checking for existing session...');
-        // Try to refresh token using HttpOnly cookie
-        // If cookie exists, backend will refresh the token automatically
-        const response = await authApi.refreshToken(''); // Empty string since cookie is used
-        console.log('AuthProvider: Token refreshed successfully, userId:', response.userId);
+        
+        // Use axios directly (not apiClient) to avoid interceptor loop
+        const response = await axios.post(
+          `${BASE_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        
+        console.log('AuthProvider: Token refreshed successfully, userId:', response.data.userId);
         
         // Update the access token in the store
-        setAccessToken(response.tokens.accessToken);
+        setAccessToken(response.data.tokens.accessToken);
         
-        // Refresh token is managed by HttpOnly cookie on backend
         console.log('AuthProvider: Access token stored, fetching user profile...');
 
         // Fetch user profile with the new access token
-        const user = await authApi.getProfile();
-        console.log('AuthProvider: User profile fetched:', user.email);
-        setUser(user, response.tokens.accessToken);
+        const userResponse = await axios.get(`${BASE_URL}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${response.data.tokens.accessToken}`,
+          },
+        });
+        
+        console.log('AuthProvider: User profile fetched:', userResponse.data.email);
+        setUser(userResponse.data, response.data.tokens.accessToken);
         console.log('AuthProvider: Session restored successfully');
 
       } catch (error) {
@@ -37,7 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
-  }, [setUser, setAccessToken, logout]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
   if (isChecking) {
     return (

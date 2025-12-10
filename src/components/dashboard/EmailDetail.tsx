@@ -12,11 +12,13 @@ import {
   Clock,
   CornerUpLeft,
   Download,
-  Mail
+  Mail,
+  Sparkles
 } from 'lucide-react';
 import { ComposeEmailModal } from './ComposeEmailModal';
 import apiClient from '@/services/apiClient';
 import { useEmailMutations } from '@/hooks/useEmail';
+import { toast } from 'sonner';
 
 interface EmailDetailProps {
   email: any; // Backend email detail type
@@ -26,7 +28,7 @@ interface EmailDetailProps {
 
 export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
   const [composeMode, setComposeMode] = useState<'compose' | 'reply' | 'replyAll' | 'forward' | null>(null);
-  const { toggleStar, markAsRead, deleteEmail } = useEmailMutations();
+  const { toggleStar, markAsRead, deleteEmail, summarizeEmail } = useEmailMutations();
   
   const handleToggleStar = () => {
     if (email) {
@@ -43,6 +45,19 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
   const handleMarkAsUnread = () => {
     if (email) {
       markAsRead.mutate({ id: email.id, isRead: false });
+    }
+  };
+
+  const handleSummarize = () => {
+    if (email) {
+      toast.promise(
+        summarizeEmail.mutateAsync(email.id),
+        {
+          loading: 'Generating AI summary...',
+          success: (data) => `Summary generated successfully!`,
+          error: 'Failed to generate summary',
+        }
+      );
     }
   };
   
@@ -183,6 +198,30 @@ export function EmailDetail({ email, mailboxId, onClose }: EmailDetailProps) {
         </div>
 
         <div className="border-t my-6" />
+
+        {/* AI Summary */}
+        {email.aiSummary ? (
+          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              <span className="text-sm font-semibold text-purple-900">AI Summary</span>
+            </div>
+            <p className="text-sm text-gray-700 leading-relaxed">{email.aiSummary}</p>
+          </div>
+        ) : (
+          <div className="mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSummarize}
+              disabled={summarizeEmail.isPending}
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              {summarizeEmail.isPending ? 'Generating...' : 'Generate AI Summary'}
+            </Button>
+          </div>
+        )}
 
         {/* Email Body */}
         <div 

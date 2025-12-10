@@ -11,6 +11,7 @@ import {
   Mail,
   MoreVertical,
   Calendar,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEmailMutations } from '@/hooks/useEmail';
@@ -163,9 +164,18 @@ export function EmailCard({ email, index }: EmailCardProps) {
               </h4>
 
               {/* AI Summary or Snippet */}
-              <p className="text-xs text-muted-foreground line-clamp-3">
-                {email.aiSummary || email.snippet || 'No preview available'}
-              </p>
+              {email.aiSummary ? (
+                <div className="flex items-start gap-1">
+                  <Sparkles className="h-3 w-3 text-purple-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-gray-700 flex-1">
+                    {email.aiSummary}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground line-clamp-3">
+                  {email.snippet || 'No preview available'}
+                </p>
+              )}
 
               {/* Badges */}
               <div className="flex items-center gap-2 flex-wrap">
