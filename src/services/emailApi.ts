@@ -29,6 +29,7 @@ export interface Email {
   category: 'primary' | 'social' | 'promotions' | 'updates' | 'forums';
   taskStatus: 'none' | 'todo' | 'in_progress' | 'done';
   isPinned: boolean;
+  isSnoozed: boolean;
   snoozedUntil: string | null;
   aiSummary?: string | null;
 }
@@ -96,7 +97,7 @@ export interface UpdateEmailData {
   isPinned?: boolean;
   taskStatus?: 'none' | 'todo' | 'in_progress' | 'done';
   taskDeadline?: string;
-  snoozedUntil?: string;
+  snoozedUntil?: string | null;
 }
 
 export interface ConnectMailboxData {

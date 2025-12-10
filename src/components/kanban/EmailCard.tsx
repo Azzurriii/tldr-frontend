@@ -32,7 +32,9 @@ export function EmailCard({ email, index }: EmailCardProps) {
   const { toggleStar, markAsRead, updateEmail } = useEmailMutations();
   const navigate = useNavigate();
 
-  const handleSnooze = (hours: number) => {
+  const handleSnooze = (hours: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    
     const snoozeUntil = new Date();
     snoozeUntil.setHours(snoozeUntil.getHours() + hours);
 
@@ -47,6 +49,25 @@ export function EmailCard({ email, index }: EmailCardProps) {
         },
         onError: () => {
           toast.error('Failed to snooze email');
+        },
+      }
+    );
+  };
+
+  const handleUnsnooze = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    updateEmail.mutate(
+      {
+        id: email.id,
+        data: { snoozedUntil: null },
+      },
+      {
+        onSuccess: () => {
+          toast.success('Email unsnoozed');
+        },
+        onError: () => {
+          toast.error('Failed to unsnooze email');
         },
       }
     );
@@ -92,6 +113,26 @@ export function EmailCard({ email, index }: EmailCardProps) {
             onClick={handleCardClick}
           >
             <CardHeader className="p-4 pb-2">
+              {/* Snooze Banner */}
+              {email.isSnoozed && email.snoozedUntil && (
+                <div className="mb-2 p-2 bg-orange-50 border border-orange-200 rounded flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1 text-orange-700">
+                    <Clock className="h-3 w-3" />
+                    <span className="font-medium">
+                      Until {new Date(email.snoozedUntil).toLocaleString()}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleUnsnooze}
+                    className="h-5 px-2 text-orange-600 hover:text-orange-700 hover:bg-orange-100"
+                  >
+                    Unsnooze
+                  </Button>
+                </div>
+              )}
+              
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <Avatar className="h-8 w-8">
@@ -129,23 +170,45 @@ export function EmailCard({ email, index }: EmailCardProps) {
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleSnooze(1)}>
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Snooze 1 hour
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleSnooze(4)}>
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Snooze 4 hours
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleSnooze(24)}>
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Snooze 1 day
-                      </DropdownMenuItem>
+                      {email.isSnoozed ? (
+                        <DropdownMenuItem onClick={handleUnsnooze}>
+                          <Clock className="h-4 w-4 mr-2" />
+                          Unsnooze
+                        </DropdownMenuItem>
+                      ) : (
+                        <>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(1, e)}>
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Snooze 1 hour
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(4, e)}>
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Snooze 4 hours
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(24, e)}>
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Snooze 1 day
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(72, e)}>
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Snooze 3 days
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={(e) => handleSnooze(168, e)}>
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Snooze 1 week
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
